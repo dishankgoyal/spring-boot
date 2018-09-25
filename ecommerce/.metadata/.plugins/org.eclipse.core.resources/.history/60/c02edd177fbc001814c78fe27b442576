@@ -1,0 +1,5 @@
+package com.bookstores.domain;
+
+public class User {
+
+}
