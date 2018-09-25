@@ -7,8 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
-@EnableAutoConfiguration
-@ComponentScan
+
 public class BookstoresApplication {
 
 	public static void main(String[] args) {
