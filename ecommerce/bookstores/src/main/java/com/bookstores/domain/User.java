@@ -1,20 +1,50 @@
 package com.bookstores.domain;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.bookstores.domain.security.Authority;
+import com.bookstores.domain.security.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class User {
+public class User implements UserDetails{
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private int id;
+	@Column(name="id", nullable = false, updatable = false)
+	private Long id;
 	private String username;
-	public int getId() {
+	private String password;
+	private String firstName;
+	private String lastName;
+	
+	@Column(name="email", nullable = false, updatable = false)
+	private String email;
+	private String phone;
+	private boolean enabled=true;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JsonIgnore
+	private Set<UserRole> userRoles = new HashSet<>();
+	
+	public Long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getUsername() {
@@ -36,10 +66,10 @@ public class User {
 		this.firstName = firstName;
 	}
 	public String getLastName() {
-		return LastName;
+		return lastName;
 	}
 	public void setLastName(String lastName) {
-		LastName = lastName;
+		this.lastName = lastName;
 	}
 	public String getEmail() {
 		return email;
@@ -47,19 +77,49 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getPhoneNumber() {
-		return phoneNumber;
+	public String getPhone() {
+		return phone;
 	}
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
-	public boolean isEnable() {
-		return enable;
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
-	public void setEnable(boolean enable) {
-		this.enable = enable;
+	public Set<UserRole> getUserRoles() {
+		return userRoles;
 	}
-	private String password, firstName, LastName,email,phoneNumber;
-	private boolean enable=true;
-
+	public void setUserRoles(Set<UserRole> userRoles) {
+		this.userRoles = userRoles;
+	}
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		Set<GrantedAuthority> authorites = new HashSet<>();
+		userRoles.forEach(ur -> authorites.add(new Authority(ur.getRole().getName())));
+		
+		return authorites;
+	}
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+	
+	
 }
